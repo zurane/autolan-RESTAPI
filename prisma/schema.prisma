@@ -1,0 +1,74 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Manufacturer {
+  id      Int             @id @default(autoincrement())
+  name    String          @unique
+  models  VehicleModel[]
+}
+
+model VehicleModel {
+  id              Int           @id @default(autoincrement())
+  name            String
+  yearFrom        Int?
+  yearTo          Int?
+  type            VehicleType?
+
+  manufacturerId  Int
+  manufacturer    Manufacturer  @relation(fields: [manufacturerId], references: [id])
+
+  tutorials       Tutorial[]
+
+  @@unique([name, manufacturerId, yearFrom, yearTo])
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  slug        String     @unique
+  description String?
+  tutorials   Tutorial[]
+}
+
+
+model Tutorial {
+  id          Int         @id @default(autoincrement())
+  title       String
+  slug        String      @unique
+  videoUrl    String
+  difficulty  String
+  createdAt   DateTime    @default(now())
+
+  modelId     Int
+  model       VehicleModel @relation(fields: [modelId], references: [id])
+
+  categoryId  Int
+  category    Category    @relation(fields: [categoryId], references: [id])
+}
+
+// Enum for vehicle types 
+enum VehicleType {
+  SEDAN
+  SUV
+  HATCHBACK
+  COUPE
+  CONVERTIBLE
+  WAGON
+  BAKKIE      
+  VAN
+  OTHER
+}
+
